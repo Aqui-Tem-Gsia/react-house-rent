@@ -26,4 +26,5 @@ export interface Listing {
   Address: Address;
   PropertyDetails: PropertyDetails;
   User: User;
+  Images: string[];
 }

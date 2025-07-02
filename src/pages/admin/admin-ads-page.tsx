@@ -16,14 +16,17 @@ import {
 
 import { useMemo, useState } from "react";
 import { formatDate, formatPrice } from "@/utils/format";
-// import { ListingDetailsModal } from "@/components/admin/listing-details-modal";
-// import { RejectReasonModal } from "@/components/admin/reject-reason-modal";
 import type { Listing } from "@/@types/admin/listing";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ListingDetailsModal } from "@/components/admin/listing-details-modal";
+import { RejectReasonModal } from "@/components/admin/reject-reason-modal";
+import {
+  useApproveListing,
+  useRejectListing,
+} from "@/hooks/use-review-listing";
 
 export const AdminAdsPage = () => {
   const { data: listings = [], isLoading } = usePendingListings();
@@ -43,13 +46,16 @@ export const AdminAdsPage = () => {
     );
   }, [listings, searchTerm]);
 
-  const handleViewDetails = (listing: Listing) => {
-    setSelectedListing(listing);
-    setIsDetailsModalOpen(true);
-  };
+  const { mutate: approveListingMutation } = useApproveListing();
+  const { mutate: rejectListingMutation } = useRejectListing();
 
-  const handleApproveListing = async (listingId: string) => {
-    // chamada para backend
+  const handleApproveListing = (listingId: string) => {
+    approveListingMutation(listingId, {
+      onSuccess: () => {
+        // toast.success("Anúncio aprovado com sucesso");
+        setIsDetailsModalOpen(false);
+      },
+    });
   };
 
   const handleRejectListing = (listing: Listing) => {
@@ -59,8 +65,22 @@ export const AdminAdsPage = () => {
 
   const confirmRejectListing = async (reason: string) => {
     if (!listingToReject) return;
-    // chamada para backend com reason
-    setIsRejectModalOpen(false);
+
+    rejectListingMutation(
+      { listingId: listingToReject.id, reason },
+      {
+        onSuccess: () => {
+          // toast.success("Anúncio rejeitado com sucesso");
+          setIsRejectModalOpen(false);
+          setIsDetailsModalOpen(false);
+        },
+      }
+    );
+  };
+
+  const handleViewDetails = (listing: Listing) => {
+    setSelectedListing(listing);
+    setIsDetailsModalOpen(true);
   };
 
   return (
@@ -75,7 +95,7 @@ export const AdminAdsPage = () => {
           </div>
         </div>
 
-        <div className="relative max-w-md">
+        <div className="relative max-w-md cursor-pointer">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Buscar por título, cidade ou bairro..."
@@ -83,130 +103,153 @@ export const AdminAdsPage = () => {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setSearchTerm(e.target.value)
             }
-            className="pl-10"
+            className="pl-10 cursor-pointer"
           />
         </div>
       </div>
 
-      {isLoading ? (
-        <p>Carregando anúncios...</p>
-      ) : filteredListings.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="text-center space-y-2">
-              <h3 className="text-lg font-semibold">
-                Nenhum anúncio encontrado
-              </h3>
-              <p className="text-muted-foreground">
-                {searchTerm
-                  ? "Tente ajustar os filtros de busca"
-                  : "Não há anúncios pendentes no momento"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredListings.map((listing) => (
-            <Card
-              key={listing.id}
-              className="hover:shadow-lg transition-shadow"
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg line-clamp-2">
-                    {listing.title}
-                  </CardTitle>
-                  <Badge variant="secondary" className="ml-2 shrink-0">
-                    {listing.type === "SALE" ? "Venda" : "Aluguel"}
-                  </Badge>
-                </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 mr-1" />
-                  {listing.Address.neighborhood}, {listing.Address.city}
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {listing.description}
+      <div className="overflow-y-auto max-h-[calc(100vh-256px)]">
+        {isLoading ? (
+          <p>Carregando anúncios...</p>
+        ) : filteredListings.length === 0 ? (
+          <Card className="cursor-pointer">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <div className="text-center space-y-2">
+                <h3 className="text-lg font-semibold">
+                  Nenhum anúncio encontrado
+                </h3>
+                <p className="text-muted-foreground">
+                  {searchTerm
+                    ? "Tente ajustar os filtros de busca"
+                    : "Não há anúncios pendentes no momento"}
                 </p>
-
-                <div className="text-2xl font-bold text-[#912C21]">
-                  {formatPrice(listing.price, listing.type)}
-                </div>
-
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    {listing.PropertyDetails.type === "HOUSE" ? (
-                      <Home className="h-4 w-4" />
-                    ) : (
-                      <Building className="h-4 w-4" />
-                    )}
-                    {listing.PropertyDetails.type === "HOUSE"
-                      ? "Casa"
-                      : "Apartamento"}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Bed className="h-4 w-4" />
-                    {listing.PropertyDetails.bedrooms}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Bath className="h-4 w-4" />
-                    {listing.PropertyDetails.bathrooms}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Car className="h-4 w-4" />
-                    {listing.PropertyDetails.parkingSpots}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    Criado em {formatDate(listing.createdAt)}
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">
-                      <p className="font-medium">{listing.User.name}</p>
-                      <p className="text-muted-foreground">
-                        {listing.User.email}
-                      </p>
-                    </div>
-                    <Button
-                      onClick={() => handleViewDetails(listing)}
-                      variant="outline"
-                      size="sm"
-                      className="gap-2"
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredListings.map((listing) => (
+              <Card
+                key={listing.id}
+                className="hover:shadow-lg transition-shadow overflow-hidden pt-0 cursor-pointer"
+              >
+                {/* Imagem do Card */}
+                <div className="relative h-48 overflow-hidden cursor-pointer">
+                  <img
+                    src={
+                      "https://i.ytimg.com/vi/B56pik49Y5s/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCxi5QbZd7EennlYLzHEnYOnSfccA"
+                    }
+                    alt={listing.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2 cursor-pointer">
+                    <Badge
+                      variant="secondary"
+                      className="bg-white/90 text-black"
                     >
-                      <Eye className="h-4 w-4" />
-                      Ver Detalhes
-                    </Button>
+                      {listing.type === "SALE" ? "Venda" : "Aluguel"}
+                    </Badge>
                   </div>
+                  {/* {listing?.Images?.length > 1 && ( */}
+                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                    +{4 - 1} fotos
+                  </div>
+                  {/* )} */}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+
+                <CardHeader className="pb-3 cursor-pointer">
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-lg line-clamp-2">
+                      {listing.title}
+                    </CardTitle>
+                  </div>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    {listing.Address.neighborhood}, {listing.Address.city}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4 cursor-pointer">
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {listing.description}
+                  </p>
+
+                  <div className="text-2xl font-bold text-[#912C21]">
+                    {formatPrice(listing.price, listing.type)}
+                  </div>
+
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      {listing.PropertyDetails.type === "HOUSE" ? (
+                        <Home className="h-4 w-4" />
+                      ) : (
+                        <Building className="h-4 w-4" />
+                      )}
+                      {listing.PropertyDetails.type === "HOUSE"
+                        ? "Casa"
+                        : "Apartamento"}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Bed className="h-4 w-4" />
+                      {listing.PropertyDetails.bedrooms}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Bath className="h-4 w-4" />
+                      {listing.PropertyDetails.bathrooms}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Car className="h-4 w-4" />
+                      {listing.PropertyDetails.parkingSpots}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      Criado em {formatDate(listing.createdAt)}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm">
+                        <p className="font-medium">{listing.User.name}</p>
+                        <p className="text-muted-foreground">
+                          {listing.User.email}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => handleViewDetails(listing)}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 cursor-pointer"
+                      >
+                        <Eye className="h-4 w-4" />
+                        Ver Detalhes
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       <ListingDetailsModal
-        listing={selectedListing}
+        listingId={selectedListing?.id ?? null}
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
         onApprove={handleApproveListing}
         onReject={handleRejectListing}
       />
 
-      {/* <RejectReasonModal
+      <RejectReasonModal
         isOpen={isRejectModalOpen}
         onClose={() => setIsRejectModalOpen(false)}
         onConfirm={confirmRejectListing}
         listingTitle={listingToReject?.title || ""}
-      /> */}
+      />
     </div>
   );
 };

@@ -26,3 +26,39 @@ export async function getListingById(listingId: string): Promise<Listing> {
 
   return response.data;
 }
+
+export async function approveListing(listingId: string) {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.put(
+    `${apiUrl}/admin/listings/${listingId}`,
+    { status: "ACTIVE" },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+}
+
+// Rejeitar anúncio
+export async function rejectListing(listingId: string, reason: string) {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.put(
+    `${apiUrl}/admin/listings/${listingId}`,
+    {
+      status: "BLOCKED",
+      reason: reason,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+}
