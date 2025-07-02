@@ -44,7 +44,6 @@ export function ListingDetailsModal({
     enabled: !!listingId,
   });
 
-  console.log(listing);
   if (!listingId || !listing) return null;
 
   const formatPhone = (phone: string) => {
@@ -53,21 +52,18 @@ export function ListingDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full !max-w-[60%] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full md:max-w-[60%] p-2 lg:p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <DialogTitle className="text-2xl">{listing?.title}</DialogTitle>
+              <DialogTitle className="text-2xl">{listing.title}</DialogTitle>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{listing?.type ?? "-"}</Badge>
-                <Badge variant="outline">
-                  {listing?.PropertyDetails?.type ?? "-"}
+                <Badge variant="secondary" className="cursor-pointer">
+                  {listing.type}
                 </Badge>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold text-[#912C21]">
-                {formatPrice(listing?.price, listing?.type)}
+                <Badge variant="outline" className="cursor-pointer">
+                  {listing.type}
+                </Badge>
               </div>
             </div>
           </div>
@@ -75,71 +71,80 @@ export function ListingDetailsModal({
 
         <div className="space-y-6">
           {/* Slider de Imagens */}
-          {/* {listing?.images && listing?.images.length > 0 && ( */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Fotos do Imóvel</h3>
-            <ImageGallery images={listing?.Images} title={listing?.title} />
+          {listing.images && listing.images.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4 cursor-pointer">
+                Fotos do Imóvel
+              </h3>
+              <ImageGallery images={listing.images} title={listing.title} />
+            </div>
+          )}
+
+          {/* Preço */}
+          <div className="text-center py-4">
+            <div className="text-4xl font-bold text-[#912C21]">
+              {formatPrice(listing.price, listing.type)}
+            </div>
           </div>
-          {/* )} */}
 
           {/* Descrição */}
           <div>
-            <h3 className="text-lg font-semibold mb-2">Descrição</h3>
-            <p className="text-muted-foreground">{listing?.description}</p>
+            <h3 className="text-lg font-semibold mb-2 cursor-pointer">
+              Descrição
+            </h3>
+            <p className="text-muted-foreground">{listing.description}</p>
           </div>
 
           <Separator />
 
           {/* Detalhes do Imóvel */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Detalhes do Imóvel</h3>
+            <h3 className="text-lg font-semibold mb-4 cursor-pointer">
+              Detalhes do Imóvel
+            </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <Square className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Área</p>
-                  <p className="font-medium">
-                    {listing?.PropertyDetails?.area}m²
-                  </p>
+                  <p className="font-medium">{listing.area}m²</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <Bed className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Quartos</p>
-                  <p className="font-medium">
-                    {listing?.PropertyDetails?.bedrooms}
-                  </p>
+                  <p className="font-medium">{listing.bedrooms}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <Bath className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Banheiros</p>
-                  <p className="font-medium">
-                    {listing?.PropertyDetails?.bathrooms}
-                  </p>
+                  <p className="font-medium">{listing.bathrooms}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <Car className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Vagas</p>
-                  <p className="font-medium">
-                    {listing?.PropertyDetails?.parkingSpots}
-                  </p>
+                  <p className="font-medium">{listing.parkingSpots}</p>
                 </div>
               </div>
             </div>
 
-            {listing?.PropertyDetails?.features.length > 0 && (
+            {listing.features.length > 0 && (
               <div className="mt-4">
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-sm text-muted-foreground mb-2 cursor-pointer">
                   Características
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {listing?.PropertyDetails?.features.map((feature, index) => (
-                    <Badge key={index} variant="outline">
+                  {listing.features.map((feature, index) => (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="cursor-pointer"
+                    >
                       {feature}
                     </Badge>
                   ))}
@@ -152,26 +157,28 @@ export function ListingDetailsModal({
 
           {/* Endereço */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Localização</h3>
+            <h3 className="text-lg font-semibold mb-4 cursor-pointer">
+              Localização
+            </h3>
             <div className="space-y-2">
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-2 cursor-pointer">
                 <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="font-medium">
-                    {listing?.Address?.street}, {listing?.Address?.number}
-                    {listing?.Address?.complement &&
-                      ` - ${listing?.Address?.complement}`}
+                    {listing.address.street}, {listing.address.number}
+                    {listing.address.complement &&
+                      ` - ${listing.address.complement}`}
                   </p>
                   <p className="text-muted-foreground">
-                    {listing?.Address?.neighborhood}, {listing?.Address?.city} -{" "}
-                    {listing?.Address?.state}
+                    {listing.address.neighborhood}, {listing.address.city} -{" "}
+                    {listing.address.state}
                   </p>
                   <p className="text-muted-foreground">
-                    CEP: {listing?.Address?.cep}
+                    CEP: {listing.address.cep}
                   </p>
-                  {listing?.Address?.referencePoint && (
+                  {listing.address.referencePoint && (
                     <p className="text-sm text-muted-foreground mt-1">
-                      Referência: {listing?.Address?.referencePoint}
+                      Referência: {listing.address.referencePoint}
                     </p>
                   )}
                 </div>
@@ -183,23 +190,37 @@ export function ListingDetailsModal({
 
           {/* Informações do Anunciante */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Anunciante</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold mb-4 cursor-pointer">
+              Anunciante
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <User className="h-5 w-5 text-muted-foreground" />
-                <span className="font-medium">{listing?.User?.name}</span>
+                <div>
+                  <p className="text-sm text-muted-foreground">Nome</p>
+                  <p className="font-medium">{listing.user?.name ?? "-"}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <Mail className="h-5 w-5 text-muted-foreground" />
-                <span>{listing?.User?.email}</span>
+                <div>
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium">{listing.user?.email ?? "-"}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <Phone className="h-5 w-5 text-muted-foreground" />
-                <span>{formatPhone(listing?.phone)}</span>
+                <div>
+                  <p className="text-sm text-muted-foreground">Telefone</p>
+                  <p className="font-medium">{formatPhone(listing.phone)}</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <MessageSquare className="h-5 w-5 text-muted-foreground" />
-                <span>{formatPhone(listing?.whatsapp)}</span>
+                <div>
+                  <p className="text-sm text-muted-foreground">WhatsApp</p>
+                  <p className="font-medium">{formatPhone(listing.whatsapp)}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -208,7 +229,7 @@ export function ListingDetailsModal({
 
           {/* Informações Adicionais */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">
+            <h3 className="text-lg font-semibold mb-4 cursor-pointer">
               Informações Adicionais
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -217,14 +238,14 @@ export function ListingDetailsModal({
                   Disponível a partir de
                 </p>
                 <p className="font-medium">
-                  {formatDate(listing?.availableFrom)}
+                  {formatDate(listing.availableFrom)}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
                   Anúncio criado em
                 </p>
-                <p className="font-medium">{formatDate(listing?.createdAt)}</p>
+                <p className="font-medium">{formatDate(listing.createdAt)}</p>
               </div>
             </div>
           </div>
@@ -242,8 +263,8 @@ export function ListingDetailsModal({
               Rejeitar Anúncio
             </Button>
             <Button
-              onClick={() => onApprove(listing?.id)}
-              className="flex-1  text-white gap-2 cursor-pointer"
+              onClick={() => onApprove(listing.id)}
+              className="flex-1 text-white gap-2 cursor-pointer"
             >
               <Check className="h-4 w-4" />
               Aprovar Anúncio

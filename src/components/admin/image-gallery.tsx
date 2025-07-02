@@ -36,7 +36,7 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
   return (
     <>
       {/* Grid de Thumbnails */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {images.slice(0, 4).map((image, index) => (
           <div
             key={index}
@@ -44,9 +44,12 @@ export function ImageGallery({ images, title }: ImageGalleryProps) {
             onClick={() => openGallery(index)}
           >
             <img
-              src={image || "/placeholder.svg"}
+              src={
+                image ||
+                "https://storage.googleapis.com/star-lab/blog/OGs/image-not-found.png"
+              }
               alt={`${title} - ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="md:w-full md:h-full w-[70%] h-[70%] object-cover"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
               <ZoomIn className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />

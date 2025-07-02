@@ -27,6 +27,7 @@ import {
   useApproveListing,
   useRejectListing,
 } from "@/hooks/use-review-listing";
+import { ListingType } from "@/@types/admin/listing-type";
 
 export const AdminAdsPage = () => {
   const { data: listings = [], isLoading } = usePendingListings();
@@ -39,7 +40,7 @@ export const AdminAdsPage = () => {
 
   const filteredListings = useMemo(() => {
     return listings.filter((listing) =>
-      [listing.title, listing.Address.city, listing.Address.neighborhood]
+      [listing.title, listing.address.city, listing.address.neighborhood]
         .join(" ")
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
@@ -137,7 +138,8 @@ export const AdminAdsPage = () => {
                 <div className="relative h-48 overflow-hidden cursor-pointer">
                   <img
                     src={
-                      "https://i.ytimg.com/vi/B56pik49Y5s/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCxi5QbZd7EennlYLzHEnYOnSfccA"
+                      listing.images[0] ||
+                      "https://storage.googleapis.com/star-lab/blog/OGs/image-not-found.png"
                     }
                     alt={listing.title}
                     className="w-full h-full object-cover"
@@ -150,11 +152,11 @@ export const AdminAdsPage = () => {
                       {listing.type === "SALE" ? "Venda" : "Aluguel"}
                     </Badge>
                   </div>
-                  {/* {listing?.Images?.length > 1 && ( */}
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                    +{4 - 1} fotos
-                  </div>
-                  {/* )} */}
+                  {listing?.images?.length > 1 && (
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      +{listing.images.length - 1} fotos
+                    </div>
+                  )}
                 </div>
 
                 <CardHeader className="pb-3 cursor-pointer">
@@ -165,7 +167,7 @@ export const AdminAdsPage = () => {
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <MapPin className="h-4 w-4 mr-1" />
-                    {listing.Address.neighborhood}, {listing.Address.city}
+                    {listing.address.neighborhood}, {listing.address.city}
                   </div>
                 </CardHeader>
 
@@ -180,26 +182,26 @@ export const AdminAdsPage = () => {
 
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      {listing.PropertyDetails.type === "HOUSE" ? (
+                      {listing.type === ListingType.RENT ? (
                         <Home className="h-4 w-4" />
                       ) : (
                         <Building className="h-4 w-4" />
                       )}
-                      {listing.PropertyDetails.type === "HOUSE"
+                      {listing.type === ListingType.RENT
                         ? "Casa"
                         : "Apartamento"}
                     </div>
                     <div className="flex items-center gap-1">
                       <Bed className="h-4 w-4" />
-                      {listing.PropertyDetails.bedrooms}
+                      {listing.bedrooms}
                     </div>
                     <div className="flex items-center gap-1">
                       <Bath className="h-4 w-4" />
-                      {listing.PropertyDetails.bathrooms}
+                      {listing.bathrooms}
                     </div>
                     <div className="flex items-center gap-1">
                       <Car className="h-4 w-4" />
-                      {listing.PropertyDetails.parkingSpots}
+                      {listing.parkingSpots}
                     </div>
                   </div>
 
@@ -213,9 +215,9 @@ export const AdminAdsPage = () => {
                   <div className="pt-2 border-t">
                     <div className="flex items-center justify-between">
                       <div className="text-sm">
-                        <p className="font-medium">{listing.User.name}</p>
+                        <p className="font-medium">{listing.user.name}</p>
                         <p className="text-muted-foreground">
-                          {listing.User.email}
+                          {listing.user.email}
                         </p>
                       </div>
                       <Button
