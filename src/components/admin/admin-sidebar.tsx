@@ -97,9 +97,20 @@ export function AdminSidebar() {
                         : "text-muted-foreground hover:bg-muted"
                     }
                   >
-                    <Link to={item.url || ""}>
-                      <item.icon />
-                      <span>{item.title}</span>
+                    <Link
+                      to={item.url || ""}
+                      className="flex justify-between w-full"
+                    >
+                      <div className="flex items-center gap-2">
+                        <item.icon className="size-4" />
+                        <span>{item.title}</span>
+                      </div>
+
+                      {item.title === "Anúncios" && listings.length > 0 && (
+                        <span className="ml-2 text-xs bg-[#ff2929] text-white rounded-full w-5 h-5 flex items-center justify-center">
+                          {listings.length}
+                        </span>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
