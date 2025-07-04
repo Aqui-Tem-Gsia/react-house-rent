@@ -1,7 +1,5 @@
 "use client";
 
-import { Home, LogOut, Megaphone } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -15,18 +13,23 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import logo from "../../assets/images/logo-aqui-tem.svg";
+
+import { Home, LogOut, Megaphone } from "lucide-react";
+
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { toast } from "sonner";
 import { usePendingListings } from "@/hooks/use-pending-listings";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Menu items
+import { toast } from "sonner";
+
 interface SidebarItem {
   title: string;
   url?: string;
@@ -128,6 +131,7 @@ export function AdminSidebar() {
               {settingsItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
+                    className="cursor-pointer"
                     onClick={item.title === "Sair" ? handleLogout : undefined}
                   >
                     <item.icon />

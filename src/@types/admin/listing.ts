@@ -1,20 +1,7 @@
 import type { User } from "../user";
-import type { Feature } from "./listing-details";
+import type { Address } from "./address";
 import type { ListingType } from "./listing-type";
-
-export interface Address {
-  id: string;
-  cep: string;
-  street: string;
-  number: string;
-  city: string;
-  state: string;
-  neighborhood: string;
-  complement?: string;
-  referencePoint?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { PropertyFeature } from "./property-feature";
 
 export interface Listing {
   id: string;
@@ -25,7 +12,7 @@ export interface Listing {
   availableFrom: string;
   whatsapp: string;
   phone: string;
-  features: Feature[];
+  features: PropertyFeature[];
   bedrooms: number;
   bathrooms: number;
   parkingSpots: number;

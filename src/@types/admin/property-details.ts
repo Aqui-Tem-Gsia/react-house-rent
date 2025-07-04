@@ -1,6 +1,8 @@
+import type { PropertyType } from "./property-type";
+
 export interface PropertyDetails {
   id: string;
-  type: "HOUSE" | "APARTMENT";
+  type: PropertyType;
   area: number;
   bedrooms: number;
   bathrooms: number;
