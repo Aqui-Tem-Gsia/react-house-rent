@@ -22,6 +22,7 @@ import { Separator } from "../ui/separator";
 import { DialogHeader, DialogContent, Dialog, DialogTitle } from "../ui/dialog";
 import { ImageGallery } from "./image-gallery";
 import type { Listing } from "@/@types/admin/listing";
+import { formatPhone } from "@/utils/format-phone";
 
 interface ListingDetailsModalProps {
   listingId: string | null;
@@ -29,6 +30,7 @@ interface ListingDetailsModalProps {
   onClose: () => void;
   onApprove: (listingId: string) => void;
   onReject: (listing: Listing) => void;
+  isSubmitting: boolean;
 }
 
 export function ListingDetailsModal({
@@ -37,18 +39,15 @@ export function ListingDetailsModal({
   onClose,
   onApprove,
   onReject,
+  isSubmitting,
 }: ListingDetailsModalProps) {
-  const { data: listing, isLoading } = useQuery({
+  const { data: listing } = useQuery({
     queryKey: ["listing", listingId],
     queryFn: () => getListingById(listingId!),
     enabled: !!listingId,
   });
 
   if (!listingId || !listing) return null;
-
-  const formatPhone = (phone: string) => {
-    return phone.replace(/(\d{2})(\d{4,5})(\d{4})/, "($1) $2-$3");
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -69,7 +68,7 @@ export function ListingDetailsModal({
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 max-h-[calc(100vh-280px)] overflow-y-auto">
           {/* Slider de Imagens */}
           {listing.images && listing.images.length > 0 && (
             <div>
@@ -253,21 +252,19 @@ export function ListingDetailsModal({
           <Separator />
 
           {/* Ações */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-1 md:gap-3 pt-4">
             <Button
               onClick={() => onReject(listing)}
               variant="destructive"
-              className="flex-1 gap-2 cursor-pointer"
+              className="flex-1 gap-2 cursor-pointer p-2"
             >
-              <X className="h-4 w-4" />
               Rejeitar Anúncio
             </Button>
             <Button
               onClick={() => onApprove(listing.id)}
-              className="flex-1 text-white gap-2 cursor-pointer"
+              className="flex-1 text-white gap-2 cursor-pointer p-2"
             >
-              <Check className="h-4 w-4" />
-              Aprovar Anúncio
+              {isSubmitting ? "Aprovando..." : "Aprovar Anúncio"}
             </Button>
           </div>
         </div>

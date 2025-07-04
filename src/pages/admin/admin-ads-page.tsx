@@ -28,6 +28,9 @@ import {
   useRejectListing,
 } from "@/hooks/use-review-listing";
 import { ListingType } from "@/@types/admin/listing-type";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const AdminAdsPage = () => {
   const { data: listings = [], isLoading } = usePendingListings();
@@ -38,6 +41,8 @@ export const AdminAdsPage = () => {
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [listingToReject, setListingToReject] = useState<Listing | null>(null);
 
+  const queryClient = useQueryClient();
+
   const filteredListings = useMemo(() => {
     return listings.filter((listing) =>
       [listing.title, listing.address.city, listing.address.neighborhood]
@@ -47,13 +52,16 @@ export const AdminAdsPage = () => {
     );
   }, [listings, searchTerm]);
 
-  const { mutate: approveListingMutation } = useApproveListing();
-  const { mutate: rejectListingMutation } = useRejectListing();
+  const { mutate: approveListingMutation, isPending: isApproving } =
+    useApproveListing();
+  const { mutate: rejectListingMutation, isPending: isRejecting } =
+    useRejectListing();
 
   const handleApproveListing = (listingId: string) => {
     approveListingMutation(listingId, {
       onSuccess: () => {
-        // toast.success("Anúncio aprovado com sucesso");
+        toast.success("Anúncio aprovado com sucesso");
+        queryClient.invalidateQueries({ queryKey: ["pending-listings"] });
         setIsDetailsModalOpen(false);
       },
     });
@@ -71,7 +79,6 @@ export const AdminAdsPage = () => {
       { listingId: listingToReject.id, reason },
       {
         onSuccess: () => {
-          // toast.success("Anúncio rejeitado com sucesso");
           setIsRejectModalOpen(false);
           setIsDetailsModalOpen(false);
         },
@@ -111,7 +118,37 @@ export const AdminAdsPage = () => {
 
       <div className="overflow-y-auto max-h-[calc(100vh-256px)]">
         {isLoading ? (
-          <p>Carregando anúncios...</p>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, index) => (
+              <Card key={index} className="pt-0">
+                <div className="relative h-48 w-full">
+                  <Skeleton className="absolute inset-0 w-full h-full" />
+                </div>
+                <CardHeader className="pb-3">
+                  <Skeleton className="h-5 w-3/4 rounded" />
+                  <Skeleton className="h-4 w-1/2 mt-2 rounded" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Skeleton className="h-4 w-full rounded" />
+                  <Skeleton className="h-8 w-1/3 rounded" />
+                  <div className="flex gap-4">
+                    <Skeleton className="h-4 w-10 rounded" />
+                    <Skeleton className="h-4 w-10 rounded" />
+                    <Skeleton className="h-4 w-10 rounded" />
+                    <Skeleton className="h-4 w-10 rounded" />
+                  </div>
+                  <Skeleton className="h-4 w-1/2 rounded" />
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-24 rounded" />
+                      <Skeleton className="h-4 w-32 rounded" />
+                    </div>
+                    <Skeleton className="h-8 w-24 rounded" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         ) : filteredListings.length === 0 ? (
           <Card className="cursor-pointer">
             <CardContent className="flex flex-col items-center justify-center py-12">
@@ -132,7 +169,7 @@ export const AdminAdsPage = () => {
             {filteredListings.map((listing) => (
               <Card
                 key={listing.id}
-                className="hover:shadow-lg transition-shadow overflow-hidden pt-0 cursor-pointer"
+                className="hover:shadow-lg  transition-shadow overflow-hidden pt-0 cursor-pointer"
               >
                 {/* Imagem do Card */}
                 <div className="relative h-48 overflow-hidden cursor-pointer">
@@ -213,8 +250,8 @@ export const AdminAdsPage = () => {
                   </div>
 
                   <div className="pt-2 border-t">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm">
+                    <div className="flex flex-col lg:flex-row items-center  gap-4 justify-between">
+                      <div className="text-sm w-full ">
                         <p className="font-medium">{listing.user.name}</p>
                         <p className="text-muted-foreground">
                           {listing.user.email}
@@ -224,7 +261,7 @@ export const AdminAdsPage = () => {
                         onClick={() => handleViewDetails(listing)}
                         variant="outline"
                         size="sm"
-                        className="gap-2 cursor-pointer"
+                        className="gap-2 cursor-pointer w-full lg:w-[130px]"
                       >
                         <Eye className="h-4 w-4" />
                         Ver Detalhes
@@ -244,6 +281,7 @@ export const AdminAdsPage = () => {
         onClose={() => setIsDetailsModalOpen(false)}
         onApprove={handleApproveListing}
         onReject={handleRejectListing}
+        isSubmitting={isApproving}
       />
 
       <RejectReasonModal
@@ -251,6 +289,7 @@ export const AdminAdsPage = () => {
         onClose={() => setIsRejectModalOpen(false)}
         onConfirm={confirmRejectListing}
         listingTitle={listingToReject?.title || ""}
+        isSubmitting={isRejecting}
       />
     </div>
   );
