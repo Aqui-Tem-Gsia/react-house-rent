@@ -21,8 +21,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import logo from "../../assets/images/logo-aqui-tem.svg";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthUser } from "@/hooks/use-auth-user";
+import { toast } from "sonner";
+import { usePendingListings } from "@/hooks/use-pending-listings";
 
 // Menu items
 interface SidebarItem {
@@ -52,12 +54,18 @@ const settingsItems: SidebarItem[] = [
 ];
 
 export function AdminSidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const user = useAuthUser();
+
+  const { data: listings = [] } = usePendingListings();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/admin/login";
+    navigate("/admin/login", { replace: true });
+    toast.success("Logout efetuado com sucesso.");
   };
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -81,7 +89,14 @@ export function AdminSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    className={
+                      location.pathname.startsWith(item.url || "")
+                        ? "bg-[#912C21] text-white hover:bg-[#912C21] hover:text-white "
+                        : "text-muted-foreground hover:bg-muted"
+                    }
+                  >
                     <Link to={item.url || ""}>
                       <item.icon />
                       <span>{item.title}</span>

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -9,9 +8,9 @@ import { useMutation } from "@tanstack/react-query";
 import { loginAdmin } from "@/services/auth-service";
 import { isAdmin } from "../../utils/auth";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function AdminLoginForm() {
-  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const {
@@ -30,17 +29,17 @@ export default function AdminLoginForm() {
       if (isAdmin(token)) {
         localStorage.setItem("token", token);
         navigate("/admin/home");
+        toast.success("Login efetuado com sucesso.");
       } else {
-        setErrorMessage("Usuário não autorizado.");
+        toast.error("Usuário não autorizado.");
       }
     },
     onError: () => {
-      setErrorMessage("Erro ao efetuar login.");
+      toast.error("E-mail ou senha incorretos.");
     },
   });
 
   const onSubmit = (data: LoginFormData) => {
-    setErrorMessage("");
     loginMutation.mutate(data);
   };
 
@@ -97,8 +96,6 @@ export default function AdminLoginForm() {
       >
         {loginMutation.isPending ? "Entrando..." : "Entrar"}
       </Button>
-
-      {errorMessage && <p className="text-red-600">{errorMessage}</p>}
     </form>
   );
 }

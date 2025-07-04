@@ -12,12 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 
 interface RejectReasonModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (reason: string) => void;
   listingTitle: string;
+  isSubmitting: boolean;
 }
 
 export function RejectReasonModal({
@@ -25,19 +27,21 @@ export function RejectReasonModal({
   onClose,
   onConfirm,
   listingTitle,
+  isSubmitting,
 }: RejectReasonModalProps) {
   const [reason, setReason] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     if (!reason.trim()) return;
 
-    setIsSubmitting(true);
     try {
       await onConfirm(reason.trim());
       setReason("");
-    } finally {
-      setIsSubmitting(false);
+      toast.success(
+        `Anúncio '${listingTitle}' foi bloqueado com sucesso! Foi enviado um e-mail para o anunciante.`
+      );
+    } catch (error) {
+      toast.error("Ocorreu um erro ao rejeitar o anúncio." + error);
     }
   };
 

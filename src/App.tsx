@@ -5,6 +5,7 @@ import { AdminDashboardPage } from "./pages/admin/admin-dashboard-page";
 import { AdminHomePage } from "./pages/admin/admin-home-page";
 import { ProtectedRoute } from "./routes/protected-route";
 import { AdminAdsPage } from "./pages/admin/admin-ads-page";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
 
         {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
+      <Toaster position="top-right" richColors />
     </Router>
   );
 }
