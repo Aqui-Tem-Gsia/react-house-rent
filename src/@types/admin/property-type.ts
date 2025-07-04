@@ -1,9 +1,9 @@
 export const PropertyType = {
-  HOUSE: "Casa",
-  APARTMENT: "Apartamento",
-  KITNET: "Kitnet",
-  STUDIO: "Estúdio",
-  OTHER: "Outros",
+  HOUSE: "HOUSE",
+  APARTMENT: "APARTMENT",
+  KITNET: "KITNET",
+  STUDIO: "STUDIO",
+  OTHER: "OTHER",
 } as const;
 
 export type PropertyType = (typeof PropertyType)[keyof typeof PropertyType];

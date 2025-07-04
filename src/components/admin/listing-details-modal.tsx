@@ -12,9 +12,7 @@ import {
   Car,
   User,
   Mail,
-  Check,
-  X,
-  Square,
+  Scan,
 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
@@ -23,6 +21,10 @@ import { DialogHeader, DialogContent, Dialog, DialogTitle } from "../ui/dialog";
 import { ImageGallery } from "./image-gallery";
 import type { Listing } from "@/@types/admin/listing";
 import { formatPhone } from "@/utils/format-phone";
+import {
+  translateListingType,
+  translatePropertyFeature,
+} from "@/utils/translate";
 
 interface ListingDetailsModalProps {
   listingId: string | null;
@@ -57,11 +59,8 @@ export function ListingDetailsModal({
             <div className="space-y-2">
               <DialogTitle className="text-2xl">{listing.title}</DialogTitle>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="cursor-pointer">
-                  {listing.type}
-                </Badge>
-                <Badge variant="outline" className="cursor-pointer">
-                  {listing.type}
+                <Badge variant="secondary">
+                  {translateListingType(listing.type)}
                 </Badge>
               </div>
             </div>
@@ -103,7 +102,7 @@ export function ListingDetailsModal({
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-2 cursor-pointer">
-                <Square className="h-5 w-5 text-muted-foreground" />
+                <Scan className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Área</p>
                   <p className="font-medium">{listing.area}m²</p>
@@ -144,7 +143,7 @@ export function ListingDetailsModal({
                       variant="outline"
                       className="cursor-pointer"
                     >
-                      {feature}
+                      {translatePropertyFeature(feature)}
                     </Badge>
                   ))}
                 </div>

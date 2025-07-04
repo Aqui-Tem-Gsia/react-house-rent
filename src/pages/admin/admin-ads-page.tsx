@@ -79,6 +79,7 @@ export const AdminAdsPage = () => {
       { listingId: listingToReject.id, reason },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["pending-listings"] });
           setIsRejectModalOpen(false);
           setIsDetailsModalOpen(false);
         },
