@@ -1,6 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 import { Toaster } from 'sonner';
+import { IndexPage } from './pages';
 import { AdminAdsPage } from './pages/admin/admin-ads-page';
 import { AdminDashboardPage } from './pages/admin/admin-dashboard-page';
 import { AdminHomePage } from './pages/admin/admin-home-page';
@@ -13,6 +14,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<IndexPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
 
         <Route path="/terms" element={<TermsPage />} />
