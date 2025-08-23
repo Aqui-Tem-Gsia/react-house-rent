@@ -3,6 +3,7 @@ import { AdminAdsPage } from './pages/admin/admin-ads-page';
 import { AdminDashboardPage } from './pages/admin/admin-dashboard-page';
 import { AdminHomePage } from './pages/admin/admin-home-page';
 import AdminLoginPage from './pages/admin/admin-login-page';
+import { AdminRefundsPage } from './pages/admin/admin-refunds-page';
 import { ListingPage } from './pages/listing';
 import { PrivacyPolicyPage } from './pages/privacy-policy';
 import { TermsPage } from './pages/terms-page';
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: 'ads',
         element: <AdminAdsPage />,
+      },
+      {
+        path: 'refunds',
+        element: <AdminRefundsPage />,
       },
     ],
   },

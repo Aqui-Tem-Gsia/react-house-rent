@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Sidebar,
@@ -12,23 +12,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
 import {
   DropdownMenu,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 
-import logo from "../../assets/images/logo-aqui-tem.svg";
+import logo from '../../assets/images/logo-aqui-tem.svg';
 
-import { Home, LogOut, Megaphone } from "lucide-react";
+import { CircleDollarSign, Home, LogOut, Megaphone } from 'lucide-react';
 
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuthUser } from "@/hooks/use-auth-user";
-import { usePendingListings } from "@/hooks/use-pending-listings";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuthUser } from '@/hooks/use-auth-user';
+import { usePendingListings } from '@/hooks/use-pending-listings';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { toast } from "sonner";
+import { useRefundRequests } from '@/hooks/use-refund-requests';
+import { toast } from 'sonner';
 
 interface SidebarItem {
   title: string;
@@ -38,20 +39,25 @@ interface SidebarItem {
 
 const items: SidebarItem[] = [
   {
-    title: "Home",
-    url: "/admin/home",
+    title: 'Home',
+    url: '/admin/home',
     icon: Home,
   },
   {
-    title: "Anúncios",
-    url: "/admin/ads",
+    title: 'Anúncios',
+    url: '/admin/ads',
     icon: Megaphone,
+  },
+  {
+    title: 'Solicitações de reembolso',
+    url: '/admin/refunds',
+    icon: CircleDollarSign,
   },
 ];
 
 const settingsItems: SidebarItem[] = [
   {
-    title: "Sair",
+    title: 'Sair',
     icon: LogOut,
   },
 ];
@@ -62,11 +68,12 @@ export function AdminSidebar() {
   const user = useAuthUser();
 
   const { data: listings = [] } = usePendingListings();
+  const { data: refundRequests = [] } = useRefundRequests();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/admin/login", { replace: true });
-    toast.success("Logout efetuado com sucesso.");
+    localStorage.removeItem('token');
+    navigate('/admin/login', { replace: true });
+    toast.success('Logout efetuado com sucesso.');
   };
 
   return (
@@ -95,13 +102,13 @@ export function AdminSidebar() {
                   <SidebarMenuButton
                     asChild
                     className={
-                      location.pathname.startsWith(item.url || "")
-                        ? "bg-[#912C21] text-white hover:bg-[#912C21] hover:text-white "
-                        : "text-muted-foreground hover:bg-muted"
+                      location.pathname.startsWith(item.url || '')
+                        ? 'bg-[#912C21] text-white hover:bg-[#912C21] hover:text-white '
+                        : 'text-muted-foreground hover:bg-muted'
                     }
                   >
                     <Link
-                      to={item.url || ""}
+                      to={item.url || ''}
                       className="flex justify-between w-full"
                     >
                       <div className="flex items-center gap-2">
@@ -109,11 +116,18 @@ export function AdminSidebar() {
                         <span>{item.title}</span>
                       </div>
 
-                      {item.title === "Anúncios" && listings.length > 0 && (
+                      {item.title === 'Anúncios' && listings.length > 0 && (
                         <span className="ml-2 text-xs bg-[#ff2929] text-white rounded-full w-5 h-5 flex items-center justify-center">
                           {listings.length}
                         </span>
                       )}
+
+                      {item.title === 'Solicitações de reembolso' &&
+                        refundRequests.length > 0 && (
+                          <span className="ml-2 text-xs bg-[#ff2929] text-white rounded-full w-5 h-5 flex items-center justify-center">
+                            {refundRequests.length}
+                          </span>
+                        )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -132,7 +146,7 @@ export function AdminSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     className="cursor-pointer"
-                    onClick={item.title === "Sair" ? handleLogout : undefined}
+                    onClick={item.title === 'Sair' ? handleLogout : undefined}
                   >
                     <item.icon />
                     <span>{item.title}</span>
@@ -161,10 +175,10 @@ export function AdminSidebar() {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {user?.name ?? "-"}
+                      {user?.name ?? '-'}
                     </span>
                     <span className="truncate text-xs">
-                      {user?.email ?? "-"}
+                      {user?.email ?? '-'}
                     </span>
                   </div>
                 </SidebarMenuButton>
