@@ -3,7 +3,7 @@ import {
   getRefundRequests,
   updateRefundRequestStatus,
 } from '@/services/refund-service';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useRefundRequests() {
   return useQuery({
@@ -13,9 +13,13 @@ export function useRefundRequests() {
 }
 
 export function useUpdateRefundRequestStatus() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ['update-refund-request-status'],
     mutationFn: ({ id, status }: { id: string; status: RefundRequestStatus }) =>
       updateRefundRequestStatus(id, status),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['refund-requests'] }),
   });
 }
