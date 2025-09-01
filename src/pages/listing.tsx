@@ -1,7 +1,5 @@
+import { env } from '@/env';
 import QRCode from 'react-qr-code';
-
-const googlePlayUrl = import.meta.env.VITE_GOOGLE_PLAY_URL ?? '';
-const appStoreUrl = import.meta.env.VITE_APP_STORE_URL ?? '';
 
 export const ListingPage = () => {
   return (
@@ -13,7 +11,7 @@ export const ListingPage = () => {
 
         <div className="flex flex-col gap-4 mb-6">
           <a
-            href={googlePlayUrl}
+            href={env.GOOGLE_PLAY_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full"
@@ -26,7 +24,7 @@ export const ListingPage = () => {
           </a>
 
           <a
-            href={appStoreUrl}
+            href={env.APP_STORE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full"
@@ -47,7 +45,7 @@ export const ListingPage = () => {
             <div className="flex flex-col items-center">
               <div className="p-2 bg-white rounded-lg border shadow">
                 <QRCode
-                  value={googlePlayUrl || window.location.href}
+                  value={env.GOOGLE_PLAY_URL || window.location.href}
                   size={128}
                 />
               </div>
@@ -57,7 +55,7 @@ export const ListingPage = () => {
             <div className="flex flex-col items-center">
               <div className="p-2 bg-white rounded-lg border shadow">
                 <QRCode
-                  value={appStoreUrl || window.location.href}
+                  value={env.APP_STORE_URL || window.location.href}
                   size={128}
                 />
               </div>
