@@ -1,4 +1,5 @@
-import axios from "axios";
+import { env } from '@/env';
+import axios from 'axios';
 
 interface LoginPayload {
   email: string;
@@ -9,7 +10,7 @@ interface LoginResponse {
   token: string;
 }
 
-const apiUrl = import.meta.env.VITE_BASE_API_URL || "http://localhost:3000";
+const apiUrl = env.BASE_API;
 
 export async function loginAdmin(data: LoginPayload): Promise<LoginResponse> {
   const response = await axios.post(`${apiUrl}/auth`, data);

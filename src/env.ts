@@ -1,0 +1,8 @@
+const { VITE_BASE_API, VITE_GOOGLE_PLAY_URL, VITE_APP_STORE_URL } = import.meta
+  .env;
+
+export const env = {
+  BASE_API: VITE_BASE_API,
+  GOOGLE_PLAY_URL: VITE_GOOGLE_PLAY_URL,
+  APP_STORE_URL: VITE_APP_STORE_URL,
+};
