@@ -2,6 +2,7 @@ import type { User } from "../user";
 import type { Address } from "./address";
 import type { ListingType } from "./listing-type";
 import type { PropertyFeature } from "./property-feature";
+import type { PropertyType } from "./property-type";
 
 export interface Listing {
   id: string;
@@ -13,6 +14,7 @@ export interface Listing {
   whatsapp: string;
   phone: string;
   features: PropertyFeature[];
+  propertyType: PropertyType;
   bedrooms: number;
   bathrooms: number;
   parkingSpots: number;

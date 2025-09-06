@@ -9,7 +9,6 @@ import {
   Calendar,
   Eye,
   Home,
-  Building,
   MapPin,
   Search,
 } from "lucide-react";
@@ -27,13 +26,15 @@ import {
   useApproveListing,
   useRejectListing,
 } from "@/hooks/use-review-listing";
-import { ListingType } from "@/@types/admin/listing-type";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getPropertyTypeTranslation } from "@/utils/getPropertyTypeTranslation";
 
 export const AdminAdsPage = () => {
   const { data: listings = [], isLoading } = usePendingListings();
+
+  console.log(listings);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
@@ -220,14 +221,8 @@ export const AdminAdsPage = () => {
 
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      {listing.type === ListingType.RENT ? (
-                        <Home className="h-4 w-4" />
-                      ) : (
-                        <Building className="h-4 w-4" />
-                      )}
-                      {listing.type === ListingType.RENT
-                        ? "Casa"
-                        : "Apartamento"}
+                      <Home className="h-4 w-4" />
+                      {getPropertyTypeTranslation(listing.propertyType)}
                     </div>
                     <div className="flex items-center gap-1">
                       <Bed className="h-4 w-4" />
