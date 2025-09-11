@@ -6,7 +6,7 @@ export const TermsPage = () => {
       <div className="mx-auto max-w-3xl h-full w-full flex flex-col bg-white shadow-lg overflow-hidden">
         <div className="px-6 py-5 border-b fixed bg-white w-full max-w-3xl">
           <h1 className="text-2xl font-semibold">
-            Termos e Condições de Uso - Aqui Tem
+            Termos e Condições de Uso do Aplicativo &ldquo;Aqui Tem&rdquo;
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
@@ -20,11 +20,12 @@ export const TermsPage = () => {
               <h2 className="text-2xl font-semibold">1. Introdução</h2>
 
               <p>
-                Estes Termos e Condições regulam o acesso e a utilização do
-                aplicativo "Aqui Tem" (doravante "Aplicativo"), plataforma
-                destinada à criação, publicação e gestão de anúncios
-                imobiliários para venda ou locação. O uso do Aplicativo implica
-                a aceitação integral destes Termos.
+                Estes Termos e Condições tem o objetivo de regular o acesso e a
+                utilização do aplicativo "Aqui Tem", plataforma destinada à
+                divulgação de oportunidades de vendas e locação de imóveis e
+                vendas em geral, com o propósito de conectar vendedores,
+                locadores, imobiliárias e proprietários interessados em vender,
+                adquirir ou alugar bens e propriedades.
               </p>
             </section>
 
