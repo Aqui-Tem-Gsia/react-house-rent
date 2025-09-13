@@ -25,6 +25,7 @@ import {
   translateListingType,
   translatePropertyFeature,
 } from "@/utils/translate";
+import { PropertyType } from "@/@types/admin/property-type";
 
 interface ListingDetailsModalProps {
   listingId: string | null;
@@ -93,63 +94,67 @@ export function ListingDetailsModal({
             <p className="text-muted-foreground">{listing.description}</p>
           </div>
 
-          <Separator />
-
           {/* Detalhes do Imóvel */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 cursor-pointer">
-              Detalhes do Imóvel
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="flex items-center gap-2 cursor-pointer">
-                <Scan className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Área</p>
-                  <p className="font-medium">{listing.area}m²</p>
+          {listing.propertyType !== PropertyType.OTHER && (
+            <>
+              {" "}
+              <Separator />
+              <div>
+                <h3 className="text-lg font-semibold mb-4 cursor-pointer">
+                  Detalhes do Imóvel
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <Scan className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Área</p>
+                      <p className="font-medium">{listing.area}m²</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <Bed className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Quartos</p>
+                      <p className="font-medium">{listing.bedrooms}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <Bath className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Banheiros</p>
+                      <p className="font-medium">{listing.bathrooms}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <Car className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Vagas</p>
+                      <p className="font-medium">{listing.parkingSpots}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer">
-                <Bed className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Quartos</p>
-                  <p className="font-medium">{listing.bedrooms}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer">
-                <Bath className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Banheiros</p>
-                  <p className="font-medium">{listing.bathrooms}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 cursor-pointer">
-                <Car className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Vagas</p>
-                  <p className="font-medium">{listing.parkingSpots}</p>
-                </div>
-              </div>
-            </div>
 
-            {listing.features.length > 0 && (
-              <div className="mt-4">
-                <p className="text-sm text-muted-foreground mb-2 cursor-pointer">
-                  Características
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {listing.features.map((feature, index) => (
-                    <Badge
-                      key={index}
-                      variant="outline"
-                      className="cursor-pointer"
-                    >
-                      {translatePropertyFeature(feature)}
-                    </Badge>
-                  ))}
-                </div>
+                {listing.features.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm text-muted-foreground mb-2 cursor-pointer">
+                      Características
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {listing.features.map((feature, index) => (
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="cursor-pointer"
+                        >
+                          {translatePropertyFeature(feature)}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
 
           <Separator />
 
