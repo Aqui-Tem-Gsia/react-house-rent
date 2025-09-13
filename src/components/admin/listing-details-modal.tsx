@@ -236,14 +236,17 @@ export function ListingDetailsModal({
               Informações Adicionais
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Disponível a partir de
-                </p>
-                <p className="font-medium">
-                  {formatDate(listing.availableFrom)}
-                </p>
-              </div>
+              {listing.propertyType !== PropertyType.OTHER && (
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Disponível a partir de
+                  </p>
+                  <p className="font-medium">
+                    {formatDate(listing.availableFrom)}
+                  </p>
+                </div>
+              )}
+
               <div>
                 <p className="text-sm text-muted-foreground">
                   Anúncio criado em
