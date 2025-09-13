@@ -11,6 +11,7 @@ import {
   Home,
   MapPin,
   Search,
+  Blocks,
 } from "lucide-react";
 
 import { useMemo, useState } from "react";
@@ -30,6 +31,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getPropertyTypeTranslation } from "@/utils/getPropertyTypeTranslation";
+import { PropertyType } from "@/@types/admin/property-type";
 
 export const AdminAdsPage = () => {
   const { data: listings = [], isLoading } = usePendingListings();
@@ -220,22 +222,34 @@ export const AdminAdsPage = () => {
                   </div>
 
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Home className="h-4 w-4" />
-                      {getPropertyTypeTranslation(listing.propertyType)}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Bed className="h-4 w-4" />
-                      {listing.bedrooms}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Bath className="h-4 w-4" />
-                      {listing.bathrooms}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Car className="h-4 w-4" />
-                      {listing.parkingSpots}
-                    </div>
+                    {listing.propertyType !== PropertyType.OTHER ? (
+                      <div className="flex items-center gap-1">
+                        <Home className="h-4 w-4" />
+                        {getPropertyTypeTranslation(listing.propertyType)}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <Blocks className="h-4 w-4" />
+                        {getPropertyTypeTranslation(listing.propertyType)}
+                      </div>
+                    )}
+
+                    {listing.propertyType !== PropertyType.OTHER && (
+                      <>
+                        <div className="flex items-center gap-1">
+                          <Bed className="h-4 w-4" />
+                          {listing.bedrooms}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Bath className="h-4 w-4" />
+                          {listing.bathrooms}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Car className="h-4 w-4" />
+                          {listing.parkingSpots}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
