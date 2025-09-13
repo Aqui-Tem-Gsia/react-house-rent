@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.aqtem.aquitem",
+      "sha256_cert_fingerprints": [
+        "DC:CA:A2:CD:F6:A1:A5:96:0B:99:AD:33:CE:8B:1E:08:5B:0E:E0:11:11:8A:39:23:81:12:34:22:6C:B7:67:E6"
+      ]
+    }
+  }
+]
