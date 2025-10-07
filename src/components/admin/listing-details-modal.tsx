@@ -202,7 +202,7 @@ export function ListingDetailsModal({
             <h3 className="text-lg font-semibold mb-4 cursor-pointer">
               Anunciante
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
               <div className="flex items-center gap-2 cursor-pointer">
                 <User className="h-5 w-5 text-muted-foreground" />
                 <div>
