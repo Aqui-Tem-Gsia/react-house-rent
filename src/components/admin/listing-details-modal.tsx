@@ -26,6 +26,7 @@ import {
   translatePropertyFeature,
 } from "@/utils/translate";
 import { PropertyType } from "@/@types/admin/property-type";
+import { ListingType } from "@/@types/admin/listing-type";
 
 interface ListingDetailsModalProps {
   listingId: string | null;
@@ -49,6 +50,11 @@ export function ListingDetailsModal({
     queryFn: () => getListingById(listingId!),
     enabled: !!listingId,
   });
+
+  const showListingInfo =
+    listing?.type === ListingType.RENT ||
+    (listing?.type === ListingType.SALE &&
+      listing?.propertyType !== PropertyType.OTHER);
 
   if (!listingId || !listing) return null;
 
@@ -95,7 +101,7 @@ export function ListingDetailsModal({
           </div>
 
           {/* Detalhes do Imóvel */}
-          {listing.propertyType !== PropertyType.OTHER && (
+          {showListingInfo && (
             <>
               {" "}
               <Separator />
@@ -236,7 +242,7 @@ export function ListingDetailsModal({
               Informações Adicionais
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {listing.propertyType !== PropertyType.OTHER && (
+              {showListingInfo && (
                 <div>
                   <p className="text-sm text-muted-foreground">
                     Disponível a partir de
