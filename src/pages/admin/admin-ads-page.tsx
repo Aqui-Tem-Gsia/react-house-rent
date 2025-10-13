@@ -36,8 +36,6 @@ import { PropertyType } from "@/@types/admin/property-type";
 export const AdminAdsPage = () => {
   const { data: listings = [], isLoading } = usePendingListings();
 
-  console.log(listings);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
