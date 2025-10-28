@@ -1,5 +1,5 @@
-import { env } from '@/env';
-import axios from 'axios';
+import { env } from "@/env";
+import api from "@/interceptors/api";
 
 interface LoginPayload {
   email: string;
@@ -13,6 +13,6 @@ interface LoginResponse {
 const apiUrl = env.BASE_API;
 
 export async function loginAdmin(data: LoginPayload): Promise<LoginResponse> {
-  const response = await axios.post(`${apiUrl}/auth`, data);
+  const response = await api.post(`${apiUrl}/auth`, data);
   return response.data;
 }

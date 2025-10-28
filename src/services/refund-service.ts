@@ -1,16 +1,16 @@
 import type {
   RefundRequest,
   RefundRequestStatus,
-} from '@/@types/admin/refund-request';
-import { env } from '@/env';
-import axios from 'axios';
+} from "@/@types/admin/refund-request";
+import { env } from "@/env";
+import api from "@/interceptors/api";
 
 const apiUrl = env.BASE_API;
 
 export async function getRefundRequests(): Promise<RefundRequest[]> {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
-  const response = await axios.get<RefundRequest[]>(
+  const response = await api.get<RefundRequest[]>(
     `${apiUrl}/admin/refund-requests`,
     {
       headers: {
@@ -26,9 +26,9 @@ export async function updateRefundRequestStatus(
   id: string,
   status: RefundRequestStatus
 ): Promise<RefundRequest[]> {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
 
-  const response = await axios.put<RefundRequest[]>(
+  const response = await api.put<RefundRequest[]>(
     `${apiUrl}/admin/refund-requests/${id}`,
     { status },
     {
