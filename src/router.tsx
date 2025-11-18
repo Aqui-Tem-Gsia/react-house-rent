@@ -6,6 +6,7 @@ import AdminLoginPage from './pages/admin/admin-login-page';
 import { AdminRefundsPage } from './pages/admin/admin-refunds-page';
 import { ListingPage } from './pages/listing';
 import { PrivacyPolicyPage } from './pages/privacy-policy';
+import { ResetPasswordPage } from './pages/reset-password';
 import { TermsPage } from './pages/terms-page';
 import { ProtectedRoute } from './routes/protected-route';
 
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
   {
     path: '/listing/:listingId',
     element: <ListingPage />,
+  },
+  {
+    path: '/reset-password',
+    element: <ResetPasswordPage />,
   },
   {
     path: '/admin/login',
