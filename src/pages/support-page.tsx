@@ -30,7 +30,7 @@ export default function SupportPage() {
           {/* Botões */}
           <div className="space-y-4">
             <a
-              href={`https://wa.me/${env.VITE_SUPPORT_01}?text=Olá, preciso de suporte técnico`}
+              href={`https://wa.me/${env.VITE_SUPPORT_01}?text=Olá, preciso de suporte no app Aqui Tem`}
               target="_blank"
               rel="noopener noreferrer"
               className="block"
@@ -45,7 +45,7 @@ export default function SupportPage() {
             </a>
 
             <a
-              href={`https://wa.me/${env.VITE_SUPPORT_02}?text=Olá, gostaria de informações sobre produtos`}
+              href={`https://wa.me/${env.VITE_SUPPORT_02}?text=Olá, preciso de suporte no app Aqui Tem`}
               target="_blank"
               rel="noopener noreferrer"
               className="block"
@@ -61,7 +61,7 @@ export default function SupportPage() {
             </a>
 
             <a
-              href={`mailto:${emailSuporte}?subject=Solicitação de Suporte`}
+              href={`mailto:${emailSuporte}?subject=Solicitação no App Aqui Tem`}
               className="block"
             >
               <Button
