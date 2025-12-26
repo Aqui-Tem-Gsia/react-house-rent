@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { env } from "@/env";
 
 export default function SupportPage() {
-  const emailSuporte = "quitemgsia@gmail.com";
+  const emailSuporte = "aquitemgsia@gmail.com";
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
