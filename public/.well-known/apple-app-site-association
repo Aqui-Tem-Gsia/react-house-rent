@@ -4,14 +4,21 @@
     "details": [
       {
         "appID": "Q9CFG575WB.com.aqtem.aquitem",
-        "paths": ["/listing/*"]
+        "paths": [
+          "/listing/*",
+          "*"
+        ]
       }
     ]
   },
   "activitycontinuation": {
-    "apps": ["Q9CFG575WB.com.aqtem.aquitem"]
+    "apps": [
+      "Q9CFG575WB.com.aqtem.aquitem"
+    ]
   },
   "webcredentials": {
-    "apps": ["Q9CFG575WB.com.aqtem.aquitem"]
+    "apps": [
+      "Q9CFG575WB.com.aqtem.aquitem"
+    ]
   }
 }
