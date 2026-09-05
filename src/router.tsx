@@ -1,5 +1,6 @@
 import { createBrowserRouter, redirect } from "react-router-dom";
 import { AdminAdsPage } from "./pages/admin/admin-ads-page";
+import { AdminCreateAdPage } from "./pages/admin/admin-create-ad-page";
 import { AdminDashboardPage } from "./pages/admin/admin-dashboard-page";
 import { AdminHomePage } from "./pages/admin/admin-home-page";
 import AdminLoginPage from "./pages/admin/admin-login-page";
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
       {
         path: "ads",
         element: <AdminAdsPage />,
+      },
+      {
+        path: "ads/create",
+        element: <AdminCreateAdPage />,
       },
       {
         path: "refunds",
