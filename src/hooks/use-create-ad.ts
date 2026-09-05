@@ -19,16 +19,25 @@ export function useCreateAd() {
   return useMutation({
     mutationFn: async ({ payload, images }: CreateAdInput) => {
       const listing = await createListingAsAdmin(payload);
+      let imagesFailed = false;
 
       if (images.length > 0) {
-        await uploadListingImages(listing.id, images);
+        try {
+          await uploadListingImages(listing.id, images);
+        } catch {
+          imagesFailed = true;
+        }
       }
 
-      return listing;
+      return { listing, imagesFailed };
     },
-    onSuccess: () => {
-      toast.success("Anúncio criado com sucesso.");
-      navigate("/admin/ads");
+    onSuccess: ({ listing, imagesFailed }) => {
+      if (imagesFailed) {
+        toast.warning("Anúncio criado, mas as imagens não foram enviadas.");
+      } else {
+        toast.success("Anúncio criado com sucesso.");
+      }
+      navigate(`/listing/${listing.id}`);
     },
     onError: () => {
       toast.error("Não foi possível criar o anúncio.");
