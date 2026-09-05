@@ -21,7 +21,13 @@ import {
 
 import logo from '../../assets/images/logo-aqui-tem.svg';
 
-import { CircleDollarSign, Home, LogOut, Megaphone } from 'lucide-react';
+import {
+  CircleDollarSign,
+  Home,
+  LogOut,
+  Megaphone,
+  PlusCircle,
+} from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthUser } from '@/hooks/use-auth-user';
@@ -47,6 +53,11 @@ const items: SidebarItem[] = [
     title: 'Anúncios',
     url: '/admin/ads',
     icon: Megaphone,
+  },
+  {
+    title: 'Criar Anúncio',
+    url: '/admin/ads/create',
+    icon: PlusCircle,
   },
   {
     title: 'Solicitações de reembolso',
