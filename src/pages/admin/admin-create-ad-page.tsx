@@ -44,6 +44,9 @@ const propertyFeatures = Object.keys(propertyFeatureMap) as PropertyFeature[];
 const toOptionalText = (value: string) =>
   value.trim() === "" ? undefined : value;
 
+const toOptionalDate = (value: string) =>
+  value.trim() === "" ? undefined : new Date(value).toISOString();
+
 const toOptionalNumber = (value: string) =>
   value.trim() === "" ? undefined : Number(value);
 
@@ -441,7 +444,7 @@ export const AdminCreateAdPage = () => {
                 Disponível a partir de (opcional)
               </Label>
               <Input
-                {...register("availableFrom", { setValueAs: toOptionalText })}
+                {...register("availableFrom", { setValueAs: toOptionalDate })}
                 id="availableFrom"
                 type="date"
               />
