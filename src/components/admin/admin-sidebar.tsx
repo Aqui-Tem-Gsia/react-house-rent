@@ -113,7 +113,7 @@ export function AdminSidebar() {
                   <SidebarMenuButton
                     asChild
                     className={
-                      location.pathname.startsWith(item.url || '')
+                      location.pathname === item.url
                         ? 'bg-[#912C21] text-white hover:bg-[#912C21] hover:text-white '
                         : 'text-muted-foreground hover:bg-muted'
                     }
