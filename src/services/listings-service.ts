@@ -1,3 +1,4 @@
+import type { CreateListingAdminPayload } from "@/@types/admin/create-listing-admin";
 import type { Listing } from "@/@types/admin/listing";
 import { env } from "@/env";
 import api from "@/interceptors/api";
@@ -57,6 +58,47 @@ export async function rejectListing(listingId: string, reason: string) {
     {
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+}
+
+export async function createListingAsAdmin(
+  payload: CreateListingAdminPayload
+): Promise<Listing> {
+  const token = localStorage.getItem("token");
+
+  const response = await api.post<Listing>(
+    `${apiUrl}/admin/listings`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
+}
+
+export async function uploadListingImages(
+  listingId: string,
+  images: File[]
+): Promise<string[]> {
+  const token = localStorage.getItem("token");
+
+  const formData = new FormData();
+  images.forEach((file) => formData.append("images", file));
+
+  const response = await api.post<string[]>(
+    `${apiUrl}/listings/${listingId}/images`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     }
   );
