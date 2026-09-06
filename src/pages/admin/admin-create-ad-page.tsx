@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateAd } from "@/hooks/use-create-ad";
+import { cn } from "@/lib/utils";
 import {
   createAdAdminSchema,
   type CreateAdAdminFormData,
@@ -72,6 +73,7 @@ export const AdminCreateAdPage = () => {
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [isCepLoading, setIsCepLoading] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const lastFetchedCepRef = useRef<string | null>(null);
 
   const createAdMutation = useCreateAd();
@@ -146,15 +148,27 @@ export const AdminCreateAdPage = () => {
     };
   }, [cepValue, setValue]);
 
-  const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
+  const processFiles = (fileList: FileList | File[]) => {
+    const files = Array.from(fileList).filter(
+      (file) => file.type === "image/png" || file.type === "image/jpeg"
+    );
 
     if (files.length > MAX_IMAGES) {
       toast.error(`Máximo de ${MAX_IMAGES} imagens`);
     }
 
     setImages(files.slice(0, MAX_IMAGES));
+  };
+
+  const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    processFiles(event.target.files ?? []);
     event.target.value = "";
+  };
+
+  const handleImagesDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    setIsDraggingOver(false);
+    processFiles(event.dataTransfer.files);
   };
 
   const removeImage = (index: number) => {
@@ -601,16 +615,37 @@ export const AdminCreateAdPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="images">
-                Selecione até {MAX_IMAGES} imagens (PNG ou JPEG)
-              </Label>
-              <Input
-                id="images"
-                type="file"
-                accept="image/png,image/jpeg"
-                multiple
-                onChange={handleImagesChange}
-              />
+              <label
+                htmlFor="images"
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  setIsDraggingOver(true);
+                }}
+                onDragLeave={() => setIsDraggingOver(false)}
+                onDrop={handleImagesDrop}
+                className={cn(
+                  "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 text-center transition-colors",
+                  isDraggingOver
+                    ? "border-primary bg-primary/5"
+                    : "border-input hover:border-primary/50 hover:bg-muted/50"
+                )}
+              >
+                <ImagePlus className="size-8 text-muted-foreground" />
+                <p className="text-sm font-medium">
+                  Clique para selecionar ou arraste as imagens aqui
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  PNG ou JPEG, até {MAX_IMAGES} imagens
+                </p>
+                <Input
+                  id="images"
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  multiple
+                  onChange={handleImagesChange}
+                  className="hidden"
+                />
+              </label>
             </div>
 
             {previews.length > 0 && (
