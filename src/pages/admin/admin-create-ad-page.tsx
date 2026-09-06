@@ -41,17 +41,30 @@ const listingTypes = Object.keys(listingTypeMap) as ListingType[];
 const propertyTypes = Object.keys(propertyTypeMap) as PropertyType[];
 const propertyFeatures = Object.keys(propertyFeatureMap) as PropertyFeature[];
 
-const toOptionalText = (value: string) =>
-  value.trim() === "" ? undefined : value;
+// react-hook-form also runs `setValueAs` on `defaultValues` during field
+// registration, not just on user keystrokes — so these must tolerate
+// already-typed values (e.g. `expirationDays: 30` as a number), not just
+// the raw string a DOM input event provides.
 
-const toOptionalDate = (value: string) =>
-  value.trim() === "" ? undefined : new Date(value).toISOString();
+const toOptionalText = (value: unknown) => {
+  if (typeof value !== "string") return value as string | undefined;
+  return value.trim() === "" ? undefined : value;
+};
 
-const toOptionalNumber = (value: string) =>
-  value.trim() === "" ? undefined : Number(value);
+const toOptionalDate = (value: unknown) => {
+  if (typeof value !== "string") return value as string | undefined;
+  return value.trim() === "" ? undefined : new Date(value).toISOString();
+};
 
-const toRequiredNumber = (value: string) =>
-  value.trim() === "" ? Number.NaN : Number(value);
+const toOptionalNumber = (value: unknown) => {
+  if (typeof value !== "string") return value as number | undefined;
+  return value.trim() === "" ? undefined : Number(value);
+};
+
+const toRequiredNumber = (value: unknown) => {
+  if (typeof value !== "string") return value as number;
+  return value.trim() === "" ? Number.NaN : Number(value);
+};
 
 export const AdminCreateAdPage = () => {
   const [images, setImages] = useState<File[]>([]);
