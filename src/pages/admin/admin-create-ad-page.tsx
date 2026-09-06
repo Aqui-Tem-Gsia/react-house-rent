@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -35,7 +36,7 @@ import {
   translatePropertyType,
 } from "@/utils/translate";
 
-const MAX_IMAGES = 7;
+const MAX_IMAGES = 5;
 
 const listingTypes = Object.keys(listingTypeMap) as ListingType[];
 const propertyTypes = Object.keys(propertyTypeMap) as PropertyType[];
@@ -102,6 +103,11 @@ export const AdminCreateAdPage = () => {
     }
 
     setImages(files.slice(0, MAX_IMAGES));
+    event.target.value = "";
+  };
+
+  const removeImage = (index: number) => {
+    setImages((current) => current.filter((_, i) => i !== index));
   };
 
   const onSubmit = (data: CreateAdAdminFormData) => {
@@ -550,14 +556,23 @@ export const AdminCreateAdPage = () => {
             </div>
 
             {previews.length > 0 && (
-              <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-7">
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
                 {previews.map((preview, index) => (
-                  <img
-                    key={preview}
-                    src={preview}
-                    alt={`Imagem ${index + 1} do anúncio`}
-                    className="h-24 w-full rounded-md border object-cover"
-                  />
+                  <div key={preview} className="relative">
+                    <img
+                      src={preview}
+                      alt={`Imagem ${index + 1} do anúncio`}
+                      className="h-24 w-full rounded-md border object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      aria-label={`Remover imagem ${index + 1}`}
+                      className="absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full bg-destructive text-white shadow hover:bg-destructive/90"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
