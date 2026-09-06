@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -27,6 +27,7 @@ import {
   createAdAdminSchema,
   type CreateAdAdminFormData,
 } from "@/schemas/create-ad-admin-schema";
+import { getAddressByCep } from "@/services/cep-service";
 import {
   listingTypeMap,
   propertyFeatureMap,
@@ -70,6 +71,8 @@ const toRequiredNumber = (value: unknown) => {
 export const AdminCreateAdPage = () => {
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [isCepLoading, setIsCepLoading] = useState(false);
+  const lastFetchedCepRef = useRef<string | null>(null);
 
   const createAdMutation = useCreateAd();
 
@@ -77,6 +80,8 @@ export const AdminCreateAdPage = () => {
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CreateAdAdminFormData>({
     resolver: zodResolver(createAdAdminSchema),
@@ -94,6 +99,52 @@ export const AdminCreateAdPage = () => {
       urls.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [images]);
+
+  const cepValue = watch("address.cep");
+
+  useEffect(() => {
+    const digits = (cepValue ?? "").replace(/\D/g, "");
+
+    if (digits.length !== 8 || digits === lastFetchedCepRef.current) {
+      return;
+    }
+
+    let cancelled = false;
+    setIsCepLoading(true);
+
+    getAddressByCep(digits)
+      .then((address) => {
+        if (cancelled) return;
+
+        lastFetchedCepRef.current = digits;
+
+        if (!address) {
+          toast.error("CEP não encontrado");
+          return;
+        }
+
+        setValue("address.street", address.logradouro, {
+          shouldValidate: true,
+        });
+        setValue("address.neighborhood", address.bairro, {
+          shouldValidate: true,
+        });
+        setValue("address.city", address.localidade, {
+          shouldValidate: true,
+        });
+        setValue("address.state", address.uf, { shouldValidate: true });
+      })
+      .catch(() => {
+        if (!cancelled) toast.error("Erro ao buscar CEP");
+      })
+      .finally(() => {
+        if (!cancelled) setIsCepLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cepValue, setValue]);
 
   const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -131,7 +182,14 @@ export const AdminCreateAdPage = () => {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="cep">CEP</Label>
+              <Label htmlFor="cep">
+                CEP
+                {isCepLoading && (
+                  <span className="text-xs font-normal text-muted-foreground">
+                    Buscando endereço...
+                  </span>
+                )}
+              </Label>
               <Input
                 {...register("address.cep")}
                 id="cep"
