@@ -3,7 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImagePlus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import {
+  Controller,
+  useForm,
+  type UseFormRegisterReturn,
+} from "react-hook-form";
 import { toast } from "sonner";
 
 import type { ListingType } from "@/@types/admin/listing-type";
@@ -29,6 +33,13 @@ import {
   type CreateAdAdminFormData,
 } from "@/schemas/create-ad-admin-schema";
 import { getAddressByCep } from "@/services/cep-service";
+import {
+  formatCurrency,
+  maskCep,
+  maskPhone,
+  maskState,
+  parseCurrency,
+} from "@/utils/masks";
 import {
   listingTypeMap,
   propertyFeatureMap,
@@ -69,11 +80,24 @@ const toRequiredNumber = (value: unknown) => {
   return value.trim() === "" ? Number.NaN : Number(value);
 };
 
+// Aplica a máscara no próprio input antes do react-hook-form ler o valor.
+const withMask = (
+  registration: UseFormRegisterReturn,
+  mask: (value: string) => string
+): UseFormRegisterReturn => ({
+  ...registration,
+  onChange: (event) => {
+    event.target.value = mask(event.target.value);
+    return registration.onChange(event);
+  },
+});
+
 export const AdminCreateAdPage = () => {
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [isCepLoading, setIsCepLoading] = useState(false);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const lastFetchedCepRef = useRef<string | null>(null);
 
   const createAdMutation = useCreateAd();
@@ -84,6 +108,7 @@ export const AdminCreateAdPage = () => {
     control,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<CreateAdAdminFormData>({
     resolver: zodResolver(createAdAdminSchema),
@@ -175,8 +200,27 @@ export const AdminCreateAdPage = () => {
     setImages((current) => current.filter((_, i) => i !== index));
   };
 
+  const showImagesError = submitAttempted && images.length === 0;
+
+  // Limpa tudo pra o admin já cadastrar o próximo anúncio na mesma tela.
+  const resetForm = () => {
+    reset();
+    setImages([]);
+    setSubmitAttempted(false);
+    lastFetchedCepRef.current = null;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const onSubmit = (data: CreateAdAdminFormData) => {
-    createAdMutation.mutate({ payload: data, images });
+    if (images.length === 0) {
+      toast.error("Adicione pelo menos uma imagem ao anúncio");
+      return;
+    }
+
+    createAdMutation.mutate(
+      { payload: data, images },
+      { onSuccess: resetForm }
+    );
   };
 
   return (
@@ -189,7 +233,13 @@ export const AdminCreateAdPage = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(event) => {
+          setSubmitAttempted(true);
+          return handleSubmit(onSubmit)(event);
+        }}
+        className="space-y-6"
+      >
         <Card>
           <CardHeader>
             <CardTitle>Endereço</CardTitle>
@@ -205,8 +255,9 @@ export const AdminCreateAdPage = () => {
                 )}
               </Label>
               <Input
-                {...register("address.cep")}
+                {...withMask(register("address.cep"), maskCep)}
                 id="cep"
+                inputMode="numeric"
                 placeholder="74000-000"
               />
               {errors.address?.cep && (
@@ -275,7 +326,7 @@ export const AdminCreateAdPage = () => {
             <div className="space-y-2">
               <Label htmlFor="state">Estado</Label>
               <Input
-                {...register("address.state")}
+                {...withMask(register("address.state"), maskState)}
                 id="state"
                 maxLength={2}
                 placeholder="GO"
@@ -404,13 +455,28 @@ export const AdminCreateAdPage = () => {
 
             <div className="space-y-2">
               <Label htmlFor="price">Preço (R$)</Label>
-              <Input
-                {...register("price", { setValueAs: toRequiredNumber })}
-                id="price"
-                type="number"
-                min={0}
-                step="0.01"
-                placeholder="250000"
+              <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="price"
+                    ref={field.ref}
+                    name={field.name}
+                    onBlur={field.onBlur}
+                    inputMode="numeric"
+                    placeholder="R$ 250.000,00"
+                    value={
+                      typeof field.value === "number" &&
+                      !Number.isNaN(field.value)
+                        ? formatCurrency(field.value)
+                        : ""
+                    }
+                    onChange={(event) =>
+                      field.onChange(parseCurrency(event.target.value))
+                    }
+                  />
+                )}
               />
               {errors.price && (
                 <span className="text-red-500 text-sm">
@@ -454,8 +520,10 @@ export const AdminCreateAdPage = () => {
             <div className="space-y-2">
               <Label htmlFor="phone">Telefone</Label>
               <Input
-                {...register("phone")}
+                {...withMask(register("phone"), maskPhone)}
                 id="phone"
+                type="tel"
+                inputMode="tel"
                 placeholder="(62) 91234-5678"
               />
               {errors.phone && (
@@ -468,8 +536,13 @@ export const AdminCreateAdPage = () => {
             <div className="space-y-2">
               <Label htmlFor="whatsapp">WhatsApp (opcional)</Label>
               <Input
-                {...register("whatsapp", { setValueAs: toOptionalText })}
+                {...withMask(
+                  register("whatsapp", { setValueAs: toOptionalText }),
+                  maskPhone
+                )}
                 id="whatsapp"
+                type="tel"
+                inputMode="tel"
                 placeholder="(62) 91234-5678"
               />
               {errors.whatsapp && (
@@ -627,7 +700,8 @@ export const AdminCreateAdPage = () => {
                   "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 text-center transition-colors",
                   isDraggingOver
                     ? "border-primary bg-primary/5"
-                    : "border-input hover:border-primary/50 hover:bg-muted/50"
+                    : "border-input hover:border-primary/50 hover:bg-muted/50",
+                  showImagesError && !isDraggingOver && "border-red-500"
                 )}
               >
                 <ImagePlus className="size-8 text-muted-foreground" />
@@ -635,7 +709,7 @@ export const AdminCreateAdPage = () => {
                   Clique para selecionar ou arraste as imagens aqui
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  PNG ou JPEG, até {MAX_IMAGES} imagens
+                  PNG ou JPEG, de 1 até {MAX_IMAGES} imagens
                 </p>
                 <Input
                   id="images"
@@ -646,6 +720,11 @@ export const AdminCreateAdPage = () => {
                   className="hidden"
                 />
               </label>
+              {showImagesError && (
+                <span className="text-red-500 text-sm">
+                  Adicione pelo menos uma imagem
+                </span>
+              )}
             </div>
 
             {previews.length > 0 && (

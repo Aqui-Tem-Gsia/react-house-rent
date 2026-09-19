@@ -31,13 +31,21 @@ export function useCreateAd() {
 
       return { listing, imagesFailed };
     },
+    // Admin continua na tela de criação pra cadastrar o próximo; o anúncio
+    // criado fica acessível pelo botão do toast.
     onSuccess: ({ listing, imagesFailed }) => {
+      const action = {
+        label: "Ver anúncio",
+        onClick: () => navigate(`/listing/${listing.id}`),
+      };
+
       if (imagesFailed) {
-        toast.warning("Anúncio criado, mas as imagens não foram enviadas.");
+        toast.warning("Anúncio criado, mas as imagens não foram enviadas.", {
+          action,
+        });
       } else {
-        toast.success("Anúncio criado com sucesso.");
+        toast.success("Anúncio criado com sucesso.", { action });
       }
-      navigate(`/listing/${listing.id}`);
     },
     onError: () => {
       toast.error("Não foi possível criar o anúncio.");
