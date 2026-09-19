@@ -65,9 +65,14 @@ const toOptionalText = (value: unknown) => {
   return value.trim() === "" ? undefined : value;
 };
 
+// `new Date("2026-09-19")` é meia-noite UTC (= dia 18 às 21h no Brasil);
+// com a hora explícita e sem "Z" vira meia-noite local, o dia que o admin viu.
 const toOptionalDate = (value: unknown) => {
   if (typeof value !== "string") return value as string | undefined;
-  return value.trim() === "" ? undefined : new Date(value).toISOString();
+  if (value.trim() === "") return undefined;
+
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  return new Date(isDateOnly ? `${value}T00:00:00` : value).toISOString();
 };
 
 const toOptionalNumber = (value: unknown) => {
@@ -92,6 +97,21 @@ const withMask = (
   },
 });
 
+// Data de hoje no fuso local, no formato do <input type="date"> (YYYY-MM-DD).
+const todayInputValue = () => {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 10);
+};
+
+// Função (não constante) pra "hoje" ser recalculado a cada reset do form.
+const getDefaultValues = (): Partial<CreateAdAdminFormData> => ({
+  propertyFeatures: [],
+  expirationDays: 30,
+  availableFrom: todayInputValue(),
+});
+
 export const AdminCreateAdPage = () => {
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -112,10 +132,7 @@ export const AdminCreateAdPage = () => {
     formState: { errors },
   } = useForm<CreateAdAdminFormData>({
     resolver: zodResolver(createAdAdminSchema),
-    defaultValues: {
-      propertyFeatures: [],
-      expirationDays: 30,
-    },
+    defaultValues: getDefaultValues(),
   });
 
   useEffect(() => {
@@ -204,7 +221,7 @@ export const AdminCreateAdPage = () => {
 
   // Limpa tudo pra o admin já cadastrar o próximo anúncio na mesma tela.
   const resetForm = () => {
-    reset();
+    reset(getDefaultValues());
     setImages([]);
     setSubmitAttempted(false);
     lastFetchedCepRef.current = null;
@@ -391,7 +408,11 @@ export const AdminCreateAdPage = () => {
                 render={({ field }) => (
                   <Select
                     value={field.value ?? ""}
-                    onValueChange={field.onChange}
+                    // Dentro de <form>, o Radix dispara onValueChange("") quando
+                    // o reset limpa o valor; repassar isso gera erro de enum.
+                    onValueChange={(value) => {
+                      if (value) field.onChange(value);
+                    }}
                   >
                     <SelectTrigger
                       id="listingType"
@@ -426,7 +447,9 @@ export const AdminCreateAdPage = () => {
                 render={({ field }) => (
                   <Select
                     value={field.value ?? ""}
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      if (value) field.onChange(value);
+                    }}
                   >
                     <SelectTrigger
                       id="propertyType"
