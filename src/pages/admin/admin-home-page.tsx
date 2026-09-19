@@ -34,6 +34,7 @@ import {
   FunnelLegend,
 } from "@/components/admin/metrics/funnel-bar-chart";
 import { BreakdownBarChart } from "@/components/admin/metrics/breakdown-bar-chart";
+import { QueryBoundary } from "@/components/admin/metrics/query-boundary";
 import { ShareBar } from "@/components/admin/metrics/share-bar";
 import { TopListingsTable } from "@/components/admin/metrics/top-listings-table";
 import {
@@ -123,9 +124,9 @@ export const AdminHomePage = () => {
   const breakdownsQuery = useMetricsBreakdowns(periodParams);
   const operationsQuery = useMetricsOperations();
 
+  // Só o total de receita é lido fora de um QueryBoundary, como rodapé do
+  // gráfico; todo o resto passa pelo boundary.
   const summary = summaryQuery.data;
-  const breakdowns = breakdownsQuery.data;
-  const points = timeseriesQuery.data?.points ?? [];
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -153,11 +154,12 @@ export const AdminHomePage = () => {
           Precisa de ação
         </h2>
 
-        {operationsQuery.isLoading || !operationsQuery.data ? (
-          <OperationsQueueSkeleton />
-        ) : (
-          <OperationsQueue data={operationsQuery.data} />
-        )}
+        <QueryBoundary
+          query={operationsQuery}
+          skeleton={<OperationsQueueSkeleton />}
+        >
+          {(operations) => <OperationsQueue data={operations} />}
+        </QueryBoundary>
       </section>
 
       <section className="space-y-3">
@@ -165,13 +167,18 @@ export const AdminHomePage = () => {
           Resultados do período
         </h2>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {summaryQuery.isLoading || !summary ? (
-            Array.from({ length: 4 }).map((_, index) => (
-              <KpiCardSkeleton key={index} />
-            ))
-          ) : (
-            <>
+        <QueryBoundary
+          query={summaryQuery}
+          skeleton={
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <KpiCardSkeleton key={index} />
+              ))}
+            </div>
+          }
+        >
+          {(summary) => (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <KpiCard
                 title="Receita bruta"
                 value={formatCurrency(summary.revenue.gross.value)}
@@ -204,17 +211,22 @@ export const AdminHomePage = () => {
                 delta={summary.users.new}
                 hint={`${formatNumber(summary.users.total)} no total`}
               />
-            </>
+            </div>
           )}
-        </div>
+        </QueryBoundary>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {summaryQuery.isLoading || !summary ? (
-            Array.from({ length: 4 }).map((_, index) => (
-              <KpiCardSkeleton key={index} compact />
-            ))
-          ) : (
-            <>
+        <QueryBoundary
+          query={summaryQuery}
+          skeleton={
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <KpiCardSkeleton key={index} compact />
+              ))}
+            </div>
+          }
+        >
+          {(summary) => (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <KpiCard
                 compact
                 title="Ticket médio"
@@ -250,9 +262,9 @@ export const AdminHomePage = () => {
                   summary.timings.avgHoursToApprove,
                 )} até aprovar`}
               />
-            </>
+            </div>
           )}
-        </div>
+        </QueryBoundary>
 
         {summary && summary.revenue.netValueMissing > 0 && (
           <p className="text-xs text-muted-foreground">
@@ -290,17 +302,23 @@ export const AdminHomePage = () => {
           </CardHeader>
 
           <CardContent>
-            {timeseriesQuery.isLoading ? (
-              <ChartCardSkeleton />
-            ) : (
-              <>
-                <RevenueAreaChart points={points} granularity={granularity} />
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Total no período:{" "}
-                  {formatCompactCurrency(summary?.revenue.gross.value ?? 0)}
-                </p>
-              </>
-            )}
+            <QueryBoundary
+              query={timeseriesQuery}
+              skeleton={<ChartCardSkeleton />}
+            >
+              {(timeseries) => (
+                <>
+                  <RevenueAreaChart
+                    points={timeseries.points}
+                    granularity={timeseries.granularity}
+                  />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Total no período:{" "}
+                    {formatCompactCurrency(summary?.revenue.gross.value ?? 0)}
+                  </p>
+                </>
+              )}
+            </QueryBoundary>
           </CardContent>
         </Card>
 
@@ -311,11 +329,17 @@ export const AdminHomePage = () => {
           </CardHeader>
 
           <CardContent>
-            {timeseriesQuery.isLoading ? (
-              <ChartCardSkeleton />
-            ) : (
-              <ListingsUsersChart points={points} granularity={granularity} />
-            )}
+            <QueryBoundary
+              query={timeseriesQuery}
+              skeleton={<ChartCardSkeleton />}
+            >
+              {(timeseries) => (
+                <ListingsUsersChart
+                  points={timeseries.points}
+                  granularity={timeseries.granularity}
+                />
+              )}
+            </QueryBoundary>
           </CardContent>
         </Card>
       </section>
@@ -330,14 +354,17 @@ export const AdminHomePage = () => {
           </CardHeader>
 
           <CardContent className="space-y-3">
-            {summaryQuery.isLoading || !summary ? (
-              <ChartCardSkeleton />
-            ) : (
-              <>
-                <FunnelBarChart funnel={summary.funnel} />
-                <FunnelLegend funnel={summary.funnel} />
-              </>
-            )}
+            <QueryBoundary
+              query={summaryQuery}
+              skeleton={<ChartCardSkeleton />}
+            >
+              {(summary) => (
+                <>
+                  <FunnelBarChart funnel={summary.funnel} />
+                  <FunnelLegend funnel={summary.funnel} />
+                </>
+              )}
+            </QueryBoundary>
           </CardContent>
         </Card>
 
@@ -348,14 +375,17 @@ export const AdminHomePage = () => {
           </CardHeader>
 
           <CardContent>
-            {breakdownsQuery.isLoading || !breakdowns ? (
-              <ChartCardSkeleton />
-            ) : (
-              <BreakdownBarChart
-                items={breakdowns.byListingStatus}
-                labelOf={translateListingStatus}
-              />
-            )}
+            <QueryBoundary
+              query={breakdownsQuery}
+              skeleton={<ChartCardSkeleton />}
+            >
+              {(breakdowns) => (
+                <BreakdownBarChart
+                  items={breakdowns.byListingStatus}
+                  labelOf={translateListingStatus}
+                />
+              )}
+            </QueryBoundary>
           </CardContent>
         </Card>
       </section>
@@ -368,14 +398,17 @@ export const AdminHomePage = () => {
           </CardHeader>
 
           <CardContent>
-            {breakdownsQuery.isLoading || !breakdowns ? (
-              <Skeleton className="h-24 w-full" />
-            ) : (
-              <ShareBar
-                items={breakdowns.byListingType}
-                labelOf={(key) => translateListingType(key as ListingType)}
-              />
-            )}
+            <QueryBoundary
+              query={breakdownsQuery}
+              skeleton={<Skeleton className="h-24 w-full" />}
+            >
+              {(breakdowns) => (
+                <ShareBar
+                  items={breakdowns.byListingType}
+                  labelOf={(key) => translateListingType(key as ListingType)}
+                />
+              )}
+            </QueryBoundary>
           </CardContent>
         </Card>
 
@@ -388,19 +421,22 @@ export const AdminHomePage = () => {
           </CardHeader>
 
           <CardContent>
-            {breakdownsQuery.isLoading || !breakdowns ? (
-              <Skeleton className="h-24 w-full" />
-            ) : (
-              <ShareBar
-                items={breakdowns.byBillingType}
-                labelOf={translateBillingType}
-                secondaryOf={(item) =>
-                  item.revenue === undefined
-                    ? undefined
-                    : formatCompactCurrency(item.revenue)
-                }
-              />
-            )}
+            <QueryBoundary
+              query={breakdownsQuery}
+              skeleton={<Skeleton className="h-24 w-full" />}
+            >
+              {(breakdowns) => (
+                <ShareBar
+                  items={breakdowns.byBillingType}
+                  labelOf={translateBillingType}
+                  secondaryOf={(item) =>
+                    item.revenue === undefined
+                      ? undefined
+                      : formatCompactCurrency(item.revenue)
+                  }
+                />
+              )}
+            </QueryBoundary>
           </CardContent>
         </Card>
       </section>
@@ -413,14 +449,17 @@ export const AdminHomePage = () => {
           </CardHeader>
 
           <CardContent>
-            {breakdownsQuery.isLoading || !breakdowns ? (
-              <ChartCardSkeleton />
-            ) : (
-              <BreakdownBarChart
-                items={breakdowns.byPropertyType}
-                labelOf={(key) => translatePropertyType(key as PropertyType)}
-              />
-            )}
+            <QueryBoundary
+              query={breakdownsQuery}
+              skeleton={<ChartCardSkeleton />}
+            >
+              {(breakdowns) => (
+                <BreakdownBarChart
+                  items={breakdowns.byPropertyType}
+                  labelOf={(key) => translatePropertyType(key as PropertyType)}
+                />
+              )}
+            </QueryBoundary>
           </CardContent>
         </Card>
 
@@ -431,16 +470,19 @@ export const AdminHomePage = () => {
           </CardHeader>
 
           <CardContent>
-            {breakdownsQuery.isLoading || !breakdowns ? (
-              <ChartCardSkeleton />
-            ) : (
-              <BreakdownBarChart
-                items={breakdowns.topLocations.map((location) => ({
-                  key: `${location.city}/${location.state}`,
-                  count: location.count,
-                }))}
-              />
-            )}
+            <QueryBoundary
+              query={breakdownsQuery}
+              skeleton={<ChartCardSkeleton />}
+            >
+              {(breakdowns) => (
+                <BreakdownBarChart
+                  items={breakdowns.topLocations.map((location) => ({
+                    key: `${location.city}/${location.state}`,
+                    count: location.count,
+                  }))}
+                />
+              )}
+            </QueryBoundary>
           </CardContent>
         </Card>
       </section>
@@ -454,36 +496,41 @@ export const AdminHomePage = () => {
         </CardHeader>
 
         <CardContent>
-          {breakdownsQuery.isLoading || !breakdowns ? (
-            <Skeleton className="h-32 w-full" />
-          ) : breakdowns.byPlan.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              Nenhum anúncio com plano no período.
-            </p>
-          ) : (
-            <ul className="divide-y text-sm">
-              {breakdowns.byPlan.map((plan) => (
-                <li
-                  key={plan.planId}
-                  className="flex items-center justify-between gap-3 py-2"
-                >
-                  <span className="truncate font-medium">
-                    {plan.name}
-                    {plan.isFree && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        grátis
+          <QueryBoundary
+            query={breakdownsQuery}
+            skeleton={<Skeleton className="h-32 w-full" />}
+          >
+            {(breakdowns) =>
+              breakdowns.byPlan.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">
+                  Nenhum anúncio com plano no período.
+                </p>
+              ) : (
+                <ul className="divide-y text-sm">
+                  {breakdowns.byPlan.map((plan) => (
+                    <li
+                      key={plan.planId}
+                      className="flex items-center justify-between gap-3 py-2"
+                    >
+                      <span className="truncate font-medium">
+                        {plan.name}
+                        {plan.isFree && (
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            grátis
+                          </span>
+                        )}
                       </span>
-                    )}
-                  </span>
 
-                  <span className="whitespace-nowrap text-muted-foreground">
-                    {formatNumber(plan.listings)} anúncios ·{" "}
-                    {formatCurrency(plan.revenue)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+                      <span className="whitespace-nowrap text-muted-foreground">
+                        {formatNumber(plan.listings)} anúncios ·{" "}
+                        {formatCurrency(plan.revenue)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+          </QueryBoundary>
         </CardContent>
       </Card>
 
@@ -500,13 +547,14 @@ export const AdminHomePage = () => {
         </CardHeader>
 
         <CardContent>
-          {operationsQuery.isLoading || !operationsQuery.data ? (
-            <Skeleton className="h-48 w-full" />
-          ) : (
-            <TopListingsTable
-              listings={operationsQuery.data.topViewedListings}
-            />
-          )}
+          <QueryBoundary
+            query={operationsQuery}
+            skeleton={<Skeleton className="h-48 w-full" />}
+          >
+            {(operations) => (
+              <TopListingsTable listings={operations.topViewedListings} />
+            )}
+          </QueryBoundary>
         </CardContent>
       </Card>
     </div>
